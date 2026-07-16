@@ -1,3 +1,9 @@
+import  { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { auth } from './Firebase'; // Aapki Firebase.js file se auth import kiya
+import { onAuthStateChanged } from 'firebase/auth';
+
+// Components
 import Navbar from "./Components/Navbar/Navbar";
 import Hero from "./Components/Hero/Hero";
 import StatsSection from "./Components/StatsSection/StatsSection";
@@ -8,50 +14,70 @@ import BloodRequests from "./Components/BloodRequests/BloodRequests";
 import Testimonials from "./Components/Testimonials/Testimonials";
 import FAQ from "./Components/FAQ/FAQ";
 import Footer from "./Components/Footer/Footer";
+import NotFound from "./Components/NotFound/NotFound";
+import AuthForm from "./Components/Auth/AuthForm"; // Naya AuthForm Component
 
 const App = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Monitor login status (Bilkul simple check)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Jab tak firebase check kar raha hai, tab tak blank screen ya simple text dikhao
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-red-600 font-bold text-lg animate-pulse">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      <div className="Navbar">
-        <Navbar />
-      </div>
+      {user ? (
+        // 1. USER LOGIN HAI: Saara content aur routing normal chalegi
+        <>
+          <Navbar />
 
-      <div className="Hero">
-        <Hero />
-      </div>
+          <Routes>
+            <Route path='/' element={
+              <>
+                <Hero />
+                <StatsSection />
+                <WhyDonate />
+                <HowItWorks />
+                <BloodCompatibility />
+                <BloodRequests />
+                <Testimonials />
+                <FAQ />
+              </>
+            } />
 
-      <div className="Stats">
-        <StatsSection />
-      </div>
+            <Route path='/Hero' element={<Hero />} />
+            <Route path='/StatsSection' element={<StatsSection />} />
+            <Route path='/WhyDonate' element={<WhyDonate />} />
+            <Route path='/HowItWorks' element={<HowItWorks />} />
+            <Route path='/BloodCompatibility' element={<BloodCompatibility />} />
+            <Route path='/BloodRequests' element={<BloodRequests />} />
+            <Route path='/Testimonials' element={<Testimonials />} />
+            <Route path='/FAQ' element={<FAQ />} />
+            
+            <Route path='*' element={<NotFound />} />
+          </Routes>
 
-      <div className="WhyDonate">
-        <WhyDonate />
-      </div>
-
-      <div className="HowItWorks">
-        <HowItWorks />
-      </div>
-
-      <div className="BloodCompatibility">
-        <BloodCompatibility />
-      </div>
-
-      <div className="BloodRequests">
-        <BloodRequests />
-      </div>
-
-      <div className="Testimonials">
-        <Testimonials />
-      </div>
-
-      <div className="FAQ"> 
-        <FAQ />
-      </div>
-
-      <div className="Footer">
-        <Footer />
-      </div>
-
+          <Footer />
+        </>
+      ) : (
+        // 2. USER LOGIN NAHI HAI: Sirf Signup/Login screen dikhegi
+        <AuthForm />
+      )}
     </>
   );
 };

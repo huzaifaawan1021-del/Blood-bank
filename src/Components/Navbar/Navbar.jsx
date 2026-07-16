@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { auth } from "../../Firebase"; // Firebase auth import kiya
+import { signOut } from "firebase/auth"; // SignOut method import kiya
 import {
   Menu,
   X,
-  UserPlus,
-  LogIn,
+  LogOut, // Signout ke liye icon
   ChevronRight,
 } from "lucide-react";
 import Logo from "./Logo";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
-  { label: "Find Donors", href: "/find-donors" },
-  { label: "Become a Donor", href: "/become-donor" },
-  { label: "Blood Requests", href: "/blood-requests" },
+  { label: "Why Donate", href: "/WhyDonate" },
+  { label: "Blood Compatibility", href: "/BloodCompatibility" },
+  { label: "Blood Requests", href: "/BloodRequests" },
 ];
 
 function NavLink({ href, children, onClick }) {
@@ -36,6 +37,15 @@ function NavLink({ href, children, onClick }) {
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Simple Logout function
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout failed: ", error.message);
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -71,7 +81,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`  sticky top-0 z-50 w-full border-b transition-all duration-300 ${
+      className={` sticky top-0 z-50 w-full border-b transition-all duration-300 ${
         scrolled
           ? "border-gray-100 bg-white/80 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.08)] backdrop-blur-md"
           : "border-transparent bg-white"
@@ -99,23 +109,15 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Desktop Buttons */}
+        {/* Desktop Logout Button */}
         <div className="hidden items-center gap-3 lg:flex">
-
-          <a
-            href="/login"
-            className="inline-flex items-center justify-center rounded-xl border-2 border-red-600 bg-white px-5 py-2.5 text-[15px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 active:scale-[0.98]"
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-red-600 bg-white px-5 py-2.5 text-[15px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 active:scale-[0.98]"
           >
-            Login
-          </a>
-
-          <a
-            href="/register"
-            className="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-2.5 text-[15px] font-semibold text-white shadow-sm shadow-red-600/30 transition-all duration-200 hover:bg-red-700 hover:shadow-md hover:shadow-red-600/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 active:scale-[0.98]"
-          >
-            Register
-          </a>
-
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
         </div>
 
         {/* Mobile Menu Button */}
@@ -128,7 +130,8 @@ export default function Navbar() {
           <Menu className="h-6 w-6" strokeWidth={2} />
         </button>
       </nav>
-            {/* Mobile Drawer */}
+
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {menuOpen && (
           <>
@@ -186,13 +189,12 @@ export default function Navbar() {
                     className="group flex items-center justify-between rounded-2xl px-4 py-4 text-lg font-semibold text-gray-800 transition hover:bg-red-50"
                   >
                     {link.label}
-
                     <ChevronRight className="h-5 w-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
                   </motion.a>
                 ))}
               </div>
 
-              {/* Bottom Buttons */}
+              {/* Bottom Logout Button for Mobile */}
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -201,27 +203,21 @@ export default function Navbar() {
                 }}
                 className="flex flex-col gap-3 border-t border-gray-100 px-5 py-6"
               >
-                <a
-                  href="/login"
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleLogout();
+                  }}
                   className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-red-600 bg-white px-5 py-3.5 text-base font-semibold text-red-600 transition hover:bg-red-50"
                 >
-                  <LogIn className="h-5 w-5" />
-                  Login
-                </a>
-
-                <a
-                  href="/register"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm shadow-red-600/30 transition hover:bg-red-700"
-                >
-                  <UserPlus className="h-5 w-5" />
-                  Register
-                </a>
+                  <LogOut className="h-5 w-5" />
+                  Logout
+                </button>
               </motion.div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-
-          </header>
+    </header>
   );
 }
