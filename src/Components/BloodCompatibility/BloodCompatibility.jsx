@@ -1,6 +1,6 @@
 // import React from 'react';
 import { motion } from 'framer-motion';
-import {  Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 const BloodCompatibility = () => {
   const chartData = [
@@ -35,16 +35,75 @@ const BloodCompatibility = () => {
           </p>
         </div>
 
-        {/* Premium Table Container */}
+        {/* Premium Table / Mobile Cards Container */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="bg-[#F8FAFC] border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-2xl overflow-hidden"
+          className="bg-[#F8FAFC] border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.02)] rounded-2xl overflow-hidden p-3 md:p-0"
         >
-          {/* Responsive Wrapper */}
-          <div className="overflow-x-auto">
+          {/* MOBILE VIEW (CARDS) - Screen size < md */}
+          <div className="block md:hidden space-y-3">
+            {chartData.map((row, index) => (
+              <div 
+                key={index}
+                className={`p-4 rounded-xl border bg-white shadow-sm space-y-3 ${
+                  row.isUniversal ? 'border-red-200 bg-red-50/20' : 'border-slate-200/80'
+                }`}
+              >
+                {/* Header: Blood Group Badge & Universal Tag */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-10 h-10 bg-red-50 border border-red-100 text-[#DC2626] font-['Manrope'] font-extrabold text-lg rounded-xl flex items-center justify-center shadow-sm">
+                      {row.type}
+                    </span>
+                    <span className="font-['Manrope'] font-bold text-slate-800 text-sm">
+                      Blood Type {row.type}
+                    </span>
+                  </div>
+
+                  {row.isUniversal && (
+                    <span className={`font-['Inter'] font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-md shadow-sm ${
+                      row.typeTag === 'Donor' 
+                        ? 'bg-emerald-600 text-white' 
+                        : 'bg-blue-600 text-white'
+                    }`}>
+                      Universal {row.typeTag}
+                    </span>
+                  )}
+                </div>
+
+                {/* Content: Can Donate To & Can Receive From */}
+                <div className="grid grid-cols-1 gap-2 pt-1 font-['Inter'] text-xs">
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase tracking-wider text-[10px] mb-0.5">
+                      Can Donate To (Patient)
+                    </span>
+                    <span className={`font-bold text-slate-800 text-sm ${
+                      row.isUniversal && row.typeTag === 'Donor' ? 'text-emerald-700 font-extrabold' : ''
+                    }`}>
+                      {row.give}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase tracking-wider text-[10px] mb-0.5">
+                      Can Receive From (Donor)
+                    </span>
+                    <span className={`font-bold text-slate-800 text-sm ${
+                      row.isUniversal && row.typeTag === 'Recipient' ? 'text-blue-700 font-extrabold' : ''
+                    }`}>
+                      {row.receive}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* DESKTOP VIEW (TABLE) - Screen size >= md */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-left border-collapse">
               
               {/* Premium Red Header */}
